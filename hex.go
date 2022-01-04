@@ -1,6 +1,9 @@
 package blockchain
 
-import "bytes"
+import (
+	"bytes"
+	"binary"
+)
 
 // ToHex converts number to bytes
 func ToHex(num int64) ([]byte, error) {

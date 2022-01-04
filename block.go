@@ -8,13 +8,17 @@ type Block struct {
 }
 
 func CreateBlock(data, prevHash []byte) *Block {
-    block := &Block{[]byte{}, data, prevHash}
+    block := &Block{
+		Hash: []byte{}, 
+		Data:data, 
+		Prev: prevHash
+	}
     block.Hashing()
     return block
 }
 
 func Genesis() *Block {
-	return CreateBlock("Genesis", []byte{})
+	return CreateBlock([]byte("Genesis"), []byte{})
 }
 
 func (b *Block) Hashing() {
