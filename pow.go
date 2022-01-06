@@ -45,6 +45,20 @@ func (pow *ProofOfWork) MakeNonce(nonce int64) ([]byte, error) {
     return data, nil
 }
 
+func (pow *ProofOfWork) Validate() bool {
+    var intHash big.Int
+
+    data, err := pow.MakeNonce(int64(pow.Block.Nonce))
+    if err != nil {
+        return false
+    }
+
+    hash := sha256.Sum256(data)
+    intHash.SetBytes(hash[:])
+
+    return intHash.Cmp(pow.Target) == -1
+}
+
 func (pow *ProofOfWork) Run() (int, []byte) {
     var intHash big.Int
     var hash [32]byte
