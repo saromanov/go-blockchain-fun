@@ -1,10 +1,15 @@
 package blockchain
 
 import (
+    "fmt"
     "bytes"
     "math"
     "math/big"
+    "crypto/sha256"
 )
+
+const difficulty = 12
+
 // ProofOfWork defines structure for proof of work
 type ProofOfWork struct {
 	Block *Block
@@ -14,22 +19,30 @@ type ProofOfWork struct {
 // NewProofOfWork creates initialization of proof of work
 func NewProofOfWork(b *Block) *ProofOfWork {
     target := big.NewInt(1)
-    target.Lsh(target, uint(256-Difficulty))
+    target.Lsh(target, uint(256-difficulty))
     pow := &ProofOfWork{b, target}
     return pow
 }
 
-func (pow *ProofOfWork) MakeNonce(nonce, difficylty int64) []byte {
+func (pow *ProofOfWork) MakeNonce(nonce int64) ([]byte, error) {
+    nonceHex, err := ToHex(nonce)
+    if err != nil {
+        return nil, err
+    }
+    difficultyHash, err := ToHex(difficulty)
+    if err != nil {
+        return nil, err
+    }
     data := bytes.Join(
         [][]byte{
-            pow.Block.PrevHash,
+            pow.Block.Prev,
             pow.Block.Data,
-            ToHex(nonce),
-            ToHex(difficulty),
+            nonceHex,
+            difficultyHash,
         },
         []byte{},
     )
-    return data
+    return data, nil
 }
 
 func (pow *ProofOfWork) Run() (int, []byte) {
@@ -38,7 +51,10 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 
     nonce := 0
     for nonce < math.MaxInt64 {
-        data := pow.InitNonce(nonce)
+        data, err := pow.MakeNonce(int64(nonce))
+        if err != nil {
+            continue
+        }
         hash = sha256.Sum256(data)
 
         fmt.Printf("\r%x", hash)
