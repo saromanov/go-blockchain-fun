@@ -21,3 +21,24 @@ func (chain *BlockChain) AddBlock(data []byte) error  {
 func Create()*BlockChain {
 	return &BlockChain{[]*Block{Genesis()}}
 }
+
+// ChooseBlockChain provides select better blockchain between 
+// remote and local
+func ChooseBlockChain(local, remote *BlockChain) (*BlockChain, error) {
+    isRemoteValid := IsChainValid(remote)
+    isLocalValid := IsChainValid(local)
+    if isRemoteValid && isLocalValid {
+        if len(remote.Blocks) > len(local.Blocks) {
+            return remote, nil
+        }
+        return local, nil
+    }
+    if isRemoteValid && !isLocalValid {
+        return remote, nil
+    }
+    if !isRemoteValid && isLocalValid {
+        return local, nil
+    }
+    return nil, errors.New("local and remote blockchains is invalid")
+
+}
