@@ -14,6 +14,7 @@ func (chain *BlockChain) AddBlock(data []byte) error  {
         return errors.New("unable to validate blocks")
     }
     chain.Blocks = append(chain.Blocks, newBlock)
+    return nil
 }
 
 // Create provides creating of the new block with genesis
